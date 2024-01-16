@@ -358,3 +358,29 @@ whatisthis(perf) # gives class of the variable
 #+ ## multiple comparison
 perf %>% tidy() %>% select(c("p.value")) %>% slice(-1)
 perf %>% tidy() %>% select(c("p.value")) %>% slice(-1) %>% unlist() %>% p.adjust()
+
+
+
+#For and While Testing
+boo <- 1;
+moo <- boo;
+too<-1
+for (ii in month.name) {
+  print(ii)
+  substr(tolower(ii),1,3) 
+}
+  
+for (ii in month.name) {
+  print(ii)
+  substr(tolower(ii),1,3)
+}
+jj<-1
+while (jj <= length(month.name)) {
+  print(month.name[jj])
+  print(substr(tolower(month.name[jj]), 1, 3))
+  jj <- jj + 2
+}
+
+print(substr(tolower(month.name), 1, 3))
+
+
