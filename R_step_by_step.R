@@ -1,5 +1,6 @@
 #'---
 #' title: "TSCI 5050: Introduction to Data Science"
+#' date: "1/22/2024"
 #' author: 'Author One ^1^, Author Two ^1^'
 #' abstract: |
 #'  | Provide a summary of objectives, study design, setting, participants,
