@@ -39,10 +39,24 @@ library(pander); # format tables
 #library(printr); # set limit on number of lines printed
 library(broom); # allows to give clean dataset
 library(dplyr); #add dplyr library
+library(rio) #adds rio which allows import and export
 
 options(max.print=500);
 panderOptions('table.split.table',Inf); panderOptions('table.split.cells',Inf);
 
+#' # Section 1
+
+#' Creating Simulated Patient Demographic
+# This is how you create simulated patient data for 25 patients from a start to end date using pipes
+n_patients<-25
+start_date<-as.Date("2023-02-20")
+end_date<-as.Date("2023-08-03")
+Demographics <-seq(start_date, end_date, by=1) %>% sample(n_patients, replace=TRUE) %>% 
+  data.frame(
+    id=seq_len(n_patients)
+    ,Enrolled=.
+    ,Age=rnorm(n_patients, 65, 10)) %>% 
+    mutate(DOB=Enrolled-Age);
 
 
 
@@ -50,11 +64,30 @@ panderOptions('table.split.table',Inf); panderOptions('table.split.cells',Inf);
 
 #' Date Formatting
 # This is how you convert text string to standard date format
-as.Date("1/22/2024","%m/%d/%Y")
+# as.Date("1/22/2024","%m/%d/%Y")
 
 
 #' # Section 2: Data Import
 #' 
-export(mtcars,"mtcars.xlsx")
-Dt <- import("mtcars.xlsx")
+# export(mtcars,"mtcars.xlsx"
+# Dt <- import("mtcars.xlsx")
+
+#' # Section 3:
+#' Simulated Data Script Variables
+# This is where we create our script variables
+
+
+#' # Section 4:
+#' Simulated Data Using Curly Brackets
+# This is where we learn how to use curly brackets which ignore line ends and set the last expression to the entire curly bracket term
+
+#{foo<-sqrt(25);
+#  if(pi>-Inf) bar<-foo-2 else bar <-runif(1)
+#bar
+#}
+
+# This is an example of a wrapped expression instead of piped
+#' (sample(seq(start_date, end_date, by=1), n_patients, replace = true));
+
+
 
