@@ -55,7 +55,9 @@ Demographics <-seq(start_date, end_date, by=1) %>% sample(n_patients, replace=TR
   data.frame(
     id=seq_len(n_patients)
     ,Enrolled=.
-    ,Age=rnorm(n_patients, 65, 10)) %>% 
+    ,Age=rnorm(n_patients, 65, 10)
+    ,Sex=sample(c("M","F"),n_patients,replace=True)
+    ) %>% 
     mutate(DOB=Enrolled-Age);
 
 
