@@ -46,19 +46,48 @@ panderOptions('table.split.table',Inf); panderOptions('table.split.cells',Inf);
 
 #' # Section 1
 
-#' Creating Simulated Patient Demographic
+#' Creating Simulated Patient Demographic Data
 # This is how you create simulated patient data for 25 patients from a start to end date using pipes
 n_patients<-25
-start_date<-as.Date("2023-02-20")
-end_date<-as.Date("2023-08-03")
-Demographics <-seq(start_date, end_date, by=1) %>% sample(n_patients, replace=TRUE) %>% 
+start_date_enrollment<-as.Date("2020-02-20")
+end_date_enrollment<-as.Date("2020-08-03")
+end_date_follow_up<-as.Date("2024-02-06")
+Demographics <-seq(start_date_enrollment,end_date_enrollment, by=1) %>% sample(.,n_patients,replace=TRUE) %>% 
   data.frame(
-    id=seq_len(n_patients)
-    ,Enrolled=.
-    ,Age=rnorm(n_patients, 65, 10)
-    ,Sex=sample(c("M","F"),n_patients,replace=True)
+    id=seq_len(n_patients),
+    Enrolled=.,
+    Age=rnorm(n_patients, 65, 10),
+    Sex=sample(c("M","F"),n_patients,replace=TRUE),
+    Race=sample(c("White","Hispanic, or Latino","Black","American Indian, Aleutian, or Eskimo",
+                   "Hawaiian or Pacific Islander","Other Asian","Other","Unknown"),
+                    n_patients,replace=TRUE,prob=c(0.6,0.18,0.13,0.06,0.01,0.01,0.02,0)),
+    Baseline_risk=rnorm(n_patients, 0.002,0.0001)
+  
     ) %>% 
-    mutate(DOB=Enrolled-Age);
+    mutate(DOB=Enrolled-Age,
+            Final_risk=Baseline_risk*ifelse(Sex=="F",0.8,1)
+           
+            );
+
+Enrolled<-Demographics$Enrolled[10]
+Final_risk<-Demographics$Final_risk[10]
+
+# asnumeric converts the number of follow ups a number format, 
+# runif generates a list of uniform distribution (between 0 and 1) for each day they are enrolled. and the <final_risk returns a boolean. 
+# Which then tells us the position and min takes the lowest position  If there is no True events piped into which then it returns infite which we need to account for
+Day_of_progression<-as.numeric(end_date_follow_up-Enrolled) %>% {runif(.)<Final_risk} %>% which() %>% 
+  min() %>% ifelse(is.infinite(.),NA,.)
+
+
+
+
+
+#' # Section 2
+
+#' Creating Simulated Patient Progression and Overall Survival Data
+# Assuming p=50% risk of progression in a year, we can calculate the risk per day 
+1-(0.5)^(1/365)
+#This frequency (0.00189) is equal to 1 in 500 odds
 
 
 
