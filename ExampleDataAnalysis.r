@@ -25,6 +25,7 @@
 # This part does not show up in your rendered report, only in the script,
 # because we are using regular comments instead of #' comments
 debug <- 0;
+Script_seed<-8675309
 knitr::opts_chunk$set(
   echo = debug > -1,
   warning = debug > 0,
@@ -40,6 +41,7 @@ library(pander); # format tables
 library(broom); # allows to give clean dataset
 library(dplyr); #add dplyr library
 library(rio) #adds rio which allows import and export
+library(survival); #time to event or survival data
 
 options(max.print=500);
 panderOptions('table.split.table',Inf); panderOptions('table.split.cells',Inf);
@@ -48,36 +50,47 @@ panderOptions('table.split.table',Inf); panderOptions('table.split.cells',Inf);
 
 #' Creating Simulated Patient Demographic Data
 # This is how you create simulated patient data for 25 patients from a start to end date using pipes
-n_patients<-25
+# Variables----
+n_patients<-100
 start_date_enrollment<-as.Date("2020-02-20")
 end_date_enrollment<-as.Date("2020-08-03")
 end_date_follow_up<-as.Date("2024-02-06")
+#' # Functions
+#Generate_event_old<-function(xx,threshold){(runif(xx)<threshold) %>% which() %>%
+    #min() %>% ifelse(is.infinite(.),NA,.)}
+#Generate_event_old (100,.25)
+
+# Demographics dataframe ----
+set.seed(Script_seed)
 Demographics <-seq(start_date_enrollment,end_date_enrollment, by=1) %>% sample(.,n_patients,replace=TRUE) %>% 
   data.frame(
     id=seq_len(n_patients),
     Enrolled=.,
+    #For 2/27 add a column for individual_end_date_followup that is exactly 2 years after Enrolled. Add integer to date
     Age=rnorm(n_patients, 65, 10),
     Sex=sample(c("M","F"),n_patients,replace=TRUE),
     Race=sample(c("White","Hispanic, or Latino","Black","American Indian, Aleutian, or Eskimo",
-                   "Hawaiian or Pacific Islander","Other Asian","Other","Unknown"),
-                    n_patients,replace=TRUE,prob=c(0.6,0.18,0.13,0.06,0.01,0.01,0.02,0)),
-    Baseline_risk=rnorm(n_patients, 0.002,0.0001)
-  
-    ) %>% 
-    mutate(DOB=Enrolled-Age,
-            Final_risk=Baseline_risk*ifelse(Sex=="F",0.8,1)
-           
-            );
+                  "Hawaiian or Pacific Islander","Other Asian","Other","Unknown"),
+                n_patients,replace=TRUE,prob=c(0.6,0.18,0.13,0.06,0.01,0.01,0.02,0)),
+    Baseline_risk=rnorm(n_patients, 0.001,0.001)%>% abs()
+    
 
-Enrolled<-Demographics$Enrolled[10]
-Final_risk<-Demographics$Final_risk[10]
-
-# asnumeric converts the number of follow ups a number format, 
-# runif generates a list of uniform distribution (between 0 and 1) for each day they are enrolled. and the <final_risk returns a boolean. 
-# Which then tells us the position and min takes the lowest position  If there is no True events piped into which then it returns infite which we need to account for
-Day_of_progression<-as.numeric(end_date_follow_up-Enrolled) %>% {runif(.)<Final_risk} %>% which() %>% 
-  min() %>% ifelse(is.infinite(.),NA,.)
-
+    
+  ) %>% 
+  mutate(DOB=Enrolled-Age,
+         Final_risk=Baseline_risk*ifelse(Sex=="F",0.8,1),
+         # asnumeric converts the number of follow ups a number format, 
+         # runif generates a list of uniform distribution (between 0 and 1) for each day they are enrolled. and the <final_risk returns a boolean. 
+         # Which then tells us the position and min takes the lowest position  If there is no True events piped into which then it returns infite which we need to account for
+         #Day_of_progression=as.numeric(end_date_follow_up-Enrolled) %>% 
+           #mapply(Generate_event,.,Final_risk)
+         # Day_of_progression=ifelse(is.infinite(Day_of_progression),NA,Day_of_progression)
+         Day_of_progression=(rgeom(n=n(),prob=Final_risk)+1),
+         #temp_Day_of_progression=Day_of_progression+Enrolled,
+         #end_date_follow_up=end_date_follow_up,
+         Day_of_progression=ifelse(Enrolled+Day_of_progression>end_date_follow_up,NA,Day_of_progression)
+           );
+survfit(Surv(Day_of_progression)~Sex,data=Demographics) %>% plot()
 
 
 
