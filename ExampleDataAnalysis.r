@@ -66,30 +66,36 @@ Demographics <-seq(start_date_enrollment,end_date_enrollment, by=1) %>% sample(.
   data.frame(
     id=seq_len(n_patients),
     Enrolled=.,
-    #For 2/27 add a column for individual_end_date_followup that is exactly 2 years after Enrolled. Add integer to date
+    Individual_end_date_follow_up=ifelse(.+(365*2)>end_date_follow_up,.+(365*2),end_date_follow_up) %>% as.Date(origin="1970-01-01"),
     Age=rnorm(n_patients, 65, 10),
     Sex=sample(c("M","F"),n_patients,replace=TRUE),
     Race=sample(c("White","Hispanic, or Latino","Black","American Indian, Aleutian, or Eskimo",
                   "Hawaiian or Pacific Islander","Other Asian","Other","Unknown"),
                 n_patients,replace=TRUE,prob=c(0.6,0.18,0.13,0.06,0.01,0.01,0.02,0)),
-    Baseline_risk=rnorm(n_patients, 0.001,0.001)%>% abs()
-    
+    Baseline_risk=rnorm(n_patients, 0.001,0.001)%>% abs(),
+    Baseline_death_pre_progression=rnorm(n_patients, 0.0001,0.001)%>% abs(),
+    Baseline_death_post_progression=rnorm(n_patients, 0.005,0.001)%>% abs()
 
     
   ) %>% 
   mutate(DOB=Enrolled-Age,
          Final_risk=Baseline_risk*ifelse(Sex=="F",0.8,1),
-         # asnumeric converts the number of follow ups a number format, 
-         # runif generates a list of uniform distribution (between 0 and 1) for each day they are enrolled. and the <final_risk returns a boolean. 
-         # Which then tells us the position and min takes the lowest position  If there is no True events piped into which then it returns infite which we need to account for
-         #Day_of_progression=as.numeric(end_date_follow_up-Enrolled) %>% 
-           #mapply(Generate_event,.,Final_risk)
-         # Day_of_progression=ifelse(is.infinite(Day_of_progression),NA,Day_of_progression)
+         Final_death_pre_progression=Baseline_death_pre_progression*ifelse(Sex=="F",0.8,1),
+         Final_death_post_progression=Baseline_death_post_progression*ifelse(Sex=="F",0.8,1),
          Day_of_progression=(rgeom(n=n(),prob=Final_risk)+1),
-         #temp_Day_of_progression=Day_of_progression+Enrolled,
-         #end_date_follow_up=end_date_follow_up,
-         Day_of_progression=ifelse(Enrolled+Day_of_progression>end_date_follow_up,NA,Day_of_progression)
-           );
+         Day_of_death=(rgeom(n=n(),prob=Final_death_pre_progression)+1),
+         Day_of_death=ifelse(Day_of_death<=Day_of_progression,
+                             Day_of_death,
+                             Day_of_progression+rgeom(n=n(),prob=Final_death_post_progression)+1),
+        
+
+         Date_of_progression=Enrolled+Day_of_progression,
+         Date_of_death=Enrolled+Day_of_death,
+         Date_of_progression=ifelse(Date_of_progression>pmin(Individual_end_date_follow_up, Date_of_death),
+                                    NA,Date_of_progression) %>% as.Date(origin="1970-01-01"),
+        Date_of_death=ifelse(Date_of_death>Individual_end_date_follow_up,
+                                   NA,Date_of_progression) %>% as.Date(origin="1970-01-01")
+         );
 survfit(Surv(Day_of_progression)~Sex,data=Demographics) %>% plot()
 
 
