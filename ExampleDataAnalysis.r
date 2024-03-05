@@ -37,7 +37,7 @@ knitr::opts_chunk$set(
 library(ggplot2); # visualisation
 library(GGally);
 library(pander); # format tables
-#library(printr); # set limit on number of lines printed
+library(printr); # set limit on number of lines printed
 library(broom); # allows to give clean dataset
 library(dplyr); #add dplyr library
 library(rio) #adds rio which allows import and export
@@ -73,7 +73,7 @@ Demographics <-seq(start_date_enrollment,end_date_enrollment, by=1) %>% sample(.
                   "Hawaiian or Pacific Islander","Other Asian","Other","Unknown"),
                 n_patients,replace=TRUE,prob=c(0.6,0.18,0.13,0.06,0.01,0.01,0.02,0)),
     Baseline_risk=rnorm(n_patients, 0.001,0.001)%>% abs(),
-    Baseline_death_pre_progression=rnorm(n_patients, 0.0001,0.001)%>% abs(),
+    Baseline_death_pre_progression=rnorm(n_patients, 0.000001,0.001)%>% abs(),
     Baseline_death_post_progression=rnorm(n_patients, 0.005,0.001)%>% abs()
 
     
@@ -94,10 +94,14 @@ Demographics <-seq(start_date_enrollment,end_date_enrollment, by=1) %>% sample(.
          Date_of_progression=ifelse(Date_of_progression>pmin(Individual_end_date_follow_up, Date_of_death),
                                     NA,Date_of_progression) %>% as.Date(origin="1970-01-01"),
         Date_of_death=ifelse(Date_of_death>Individual_end_date_follow_up,
-                                   NA,Date_of_progression) %>% as.Date(origin="1970-01-01")
+                                   NA,Date_of_death) %>% as.Date(origin="1970-01-01")
          );
 survfit(Surv(Day_of_progression)~Sex,data=Demographics) %>% plot()
 
+# Eeported Data
+Columns_to_keep <- c("id", "Enrolled", "Individual_end_date_follow_up", "Sex", "Race", "DOB", "Date_of_progression", "Date_of_death");
+Demographics[,Columns_to_keep]
+export(Demographics[,Columns_to_keep],"Exported_Patient_Data.xlsx")
 
 
 
@@ -137,7 +141,15 @@ survfit(Surv(Day_of_progression)~Sex,data=Demographics) %>% plot()
 #}
 
 # This is an example of a wrapped expression instead of piped
-#' (sample(seq(start_date, end_date, by=1), n_patients, replace = true));
+#(sample(seq(start_date, end_date, by=1), n_patients, replace = true));
 
-
-
+#'# Section 5;
+#' Different ways to subset a data column
+#+ Subsetting
+# Demographics[Demographics$Date_of_progression > Demographics$Date_of_death,];
+# Demographics[which(Demographics$Date_of_progression > Demographics$Date_of_death),];
+# subset(Demographics, Date_of_progression > Date_of_death);
+# sum(Demographics$Date_of_progression > Demographics$Date_of_death,na.rm = TRUE);
+# mean(Demographics$Date_of_progression > Demographics$Date_of_death,na.rm = TRUE);
+# with(Demographics, sum(Date_of_progression > Date_of_death,na.rm = TRUE));
+c()
