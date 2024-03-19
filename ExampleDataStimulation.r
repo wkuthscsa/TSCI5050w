@@ -73,7 +73,7 @@ Demographics <-seq(start_date_enrollment,end_date_enrollment, by=1) %>% sample(.
                   "Hawaiian or Pacific Islander","Other Asian","Other","Unknown"),
                 n_patients,replace=TRUE,prob=c(0.6,0.18,0.13,0.06,0.01,0.01,0.02,0)),
     Baseline_risk=rnorm(n_patients, 0.001,0.001)%>% abs(),
-    Baseline_death_pre_progression=rnorm(n_patients, 0.000001,0.001)%>% abs(),
+    Baseline_death_pre_progression=rnorm(n_patients, 0.000001,0.00001)%>% abs(),
     Baseline_death_post_progression=rnorm(n_patients, 0.005,0.001)%>% abs()
 
     
