@@ -73,9 +73,15 @@ dat0<-import(Inputdata) %>%
 rename(any_of(Data_columns)) %>% 
   mutate(age=as.numeric((start-dob)/365.25),
          maxfollowup=as.numeric(followup-start),
+         #date1 is progression, date2 is death
          censor1=!is.na(date1),
          censor2=!is.na(date2),
+         censor3=case_when(!is.na(date1)~"progressed",
+                           !is.na(date2)~"died",
+                           TRUE~"censored"
+                           ) %>% factor(levels=c("censored","progressed","died")),
          #event1 and event2 are days that have elapsed since enrollment
+         #censor is event occured, if occured=TRUE, if not =FALSE
          event2=coalesce(as.numeric(date2-start),maxfollowup),
          event1=coalesce(as.numeric(date1-start),event2)
   )
@@ -83,6 +89,20 @@ rename(any_of(Data_columns)) %>%
 head(dat0)
 
 fit0<-survfit(Surv(event1,censor1)~Sex,dat0)
-
-
+summary(fit0) 
+pander(fit0)
+ggsurvplot(fit0,data=dat0)
+#' Bells and whistles for plot
+ggsurvplot(fit0,data=dat0,censor.size=10,risk.table=TRUE,conf.int=TRUE,palette=c("#FF00FF","blue"))
+update(fit0,conf.int=0.9) %>% ggsurvplot(.,data=dat0,censor.size=10,risk.table=TRUE,conf.int=TRUE)
+fitcr<-update(fit0,Surv(event1,censor3)~.)
+plot(fitcr,col=c("pink","limegreen","orange","lightblue"))
+legend("bottomright",legend=c("female progressed","male progressed","female died","male died"),
+       title="Legend",
+       bty=NA,
+       c("pink","limegreen","orange","lightblue"),
+       lty=c(1,3)
+       )
+table(dat0$censor3)
+print(fitcr)
 c()
