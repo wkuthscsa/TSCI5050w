@@ -96,12 +96,12 @@ ggsurvplot(fit0,data=dat0)
 ggsurvplot(fit0,data=dat0,censor.size=10,risk.table=TRUE,conf.int=TRUE,palette=c("#FF00FF","blue"))
 update(fit0,conf.int=0.9) %>% ggsurvplot(.,data=dat0,censor.size=10,risk.table=TRUE,conf.int=TRUE)
 fitcr<-update(fit0,Surv(event1,censor3)~.)
-plot(fitcr,col=c("pink","limegreen","orange","lightblue"))
+plot(fitcr,col=c("pink","limegreen","orange","lightblue"),lty=c(1,2,3,4))
 legend("bottomright",legend=c("female progressed","male progressed","female died","male died"),
        title="Legend",
-       bty=NA,
-       c("pink","limegreen","orange","lightblue"),
-       lty=c(1,3)
+       bty="n",
+       col=c("pink","limegreen","orange","lightblue"),
+       lty=c(1,2,3,4)
        )
 table(dat0$censor3)
 print(fitcr)
