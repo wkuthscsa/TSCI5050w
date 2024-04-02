@@ -49,17 +49,40 @@ panderOptions('missing','_')
 panderOptions('table.alignment.default','left')
 panderOptions('table.alignment.rownames','left')
 Inputdata<-"Exported_Patient_Data.xlsx"
+#Data Columns
+
+Data_columns<- c(
+  start='Enrolled',
+  followup='Individual_end_date_follow_up',
+  dob='DOB',
+  date1='Date_of_progression',
+  date2='Date_of_death'
+)
+
+Covariates<-c(
+  "Race","Sex"
+  )
+
+
 # Import data ----
 #' # Import Data
 #' 
 #' 
 #+ This is where we import data
-dat0<-import(Inputdata)
-#dat0
+dat0<-import(Inputdata) %>%
+rename(any_of(Data_columns)) %>% 
+  mutate(age=as.numeric((start-dob)/365.25),
+         maxfollowup=as.numeric(followup-start),
+         censor1=!is.na(date1),
+         censor2=!is.na(date2),
+         #event1 and event2 are days that have elapsed since enrollment
+         event2=coalesce(as.numeric(date2-start),maxfollowup),
+         event1=coalesce(as.numeric(date1-start),event2)
+  )
+         
 head(dat0)
-#pander(head(dat0))
 
-
+fit0<-survfit(Surv(event1,censor1)~Sex,dat0)
 
 
 c()
