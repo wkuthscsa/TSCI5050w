@@ -95,6 +95,8 @@ ggsurvplot(fit0,data=dat0)
 #' Bells and whistles for plot
 ggsurvplot(fit0,data=dat0,censor.size=10,risk.table=TRUE,conf.int=TRUE,palette=c("#FF00FF","blue"))
 update(fit0,conf.int=0.9) %>% ggsurvplot(.,data=dat0,censor.size=10,risk.table=TRUE,conf.int=TRUE)
+
+#' # Competing Risks
 fitcr<-update(fit0,Surv(event1,censor3)~.)
 plot(fitcr,col=c("pink","limegreen","orange","lightblue"),lty=c(1,2))
 legend("bottomright",legend=c("female progressed","male progressed","female died","male died"),
@@ -105,4 +107,8 @@ legend("bottomright",legend=c("female progressed","male progressed","female died
        )
 table(dat0$censor3)
 print(fitcr)
+
+#' #Competing Risks Survminer Version
+ggcompetingrisks(fitcr,data=dat0) #,censor.size=10,risk.table=TRUE,conf.int=TRUE,palette=c("#FF00FF","blue"))
+
 c()
