@@ -58,6 +58,8 @@ simdata <- function(n_patients=100,
                     end_date_enrollment=as.Date("2020-08-03"),
                     end_date_follow_up=as.Date("2024-02-06"),
                     Columns_to_keep=c("id", "Enrolled", "Individual_end_date_follow_up", "Sex", "Race", "DOB", "Date_of_progression", "Date_of_death"),
+                    
+                    n_patients=100,
                     #SaveTo
                     Saveto=''
 
