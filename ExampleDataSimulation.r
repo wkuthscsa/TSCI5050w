@@ -193,10 +193,16 @@ head(Demog)
 
 Sampledata<-list()
 for(xx in 
-readxl::excel_sheets(Synthpopinput)){
+readxl::excel_sheets(Synthpopinput)[1,2]){
   print(xx)
-  Sampledata[[xx]]<-import(Synthpopinput,which = xx)
-  
+  Sampledata[[xx]]<-import(Synthpopinput,which = xx) %>% subset(!is.na(names)) %>%
+    select(!any_of('Comments')) %>%
+    syn.strata('name',minstratumsize = 10) %>% {.$syn}
+
   
 }
+synGPS<-syn.strata(iris,'Species',minstratumsize = 10)
+summary(synGPS)
+compare(synGPS,iris)
 c()
+
