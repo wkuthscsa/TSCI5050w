@@ -33,6 +33,8 @@ knitr::opts_chunk$set(
   class.output = "scroll-20",
   attr.output = 'style="max-height: 150px; overflow-y: auto;"'
 )
+Synthpopinput<-'~/../Desktop/Research Biostatistics/Synthpop Excell Example1.xlsx'
+
 
 library(ggplot2); # visualisation
 library(GGally);
@@ -42,6 +44,7 @@ library(broom); # allows to give clean dataset
 library(dplyr); #add dplyr library
 library(rio) #adds rio which allows import and export
 library(survival); #time to event or survival data
+library(synthpop); #takes dataset and generates another data set with same structure and similar distribution
 
 options(max.print=500);
 panderOptions('table.split.table',Inf); panderOptions('table.split.cells',Inf);
@@ -181,4 +184,19 @@ head(Demog)
 # sum(Demographics$Date_of_progression > Demographics$Date_of_death,na.rm = TRUE);
 # mean(Demographics$Date_of_progression > Demographics$Date_of_death,na.rm = TRUE);
 # with(Demographics, sum(Date_of_progression > Date_of_death,na.rm = TRUE));
+
+#synthpop package ----
+#' ## SynthPop package
+#functionname(functionargument='value')
+#for(temporaryvariable in vector){ CODE }
+
+
+Sampledata<-list()
+for(xx in 
+readxl::excel_sheets(Synthpopinput)){
+  print(xx)
+  Sampledata[[xx]]<-import(Synthpopinput,which = xx)
+  
+  
+}
 c()
