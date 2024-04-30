@@ -33,7 +33,7 @@ knitr::opts_chunk$set(
   class.output = "scroll-20",
   attr.output = 'style="max-height: 150px; overflow-y: auto;"'
 )
-Synthpopinput<-'~/../Desktop/Research Biostatistics/Synthpop Excell Example1.xlsx'
+Synthpopinput<-'SyndataOriginal wjk240430.xlsx'
 
 
 library(ggplot2); # visualisation
@@ -61,8 +61,7 @@ simdata <- function(n_patients=100,
                     end_date_enrollment=as.Date("2020-08-03"),
                     end_date_follow_up=as.Date("2024-02-06"),
                     Columns_to_keep=c("id", "Enrolled", "Individual_end_date_follow_up", "Sex", "Race", "DOB", "Date_of_progression", "Date_of_death"),
-                    
-                    n_patients=100,
+                  
                     #SaveTo
                     Saveto=''
 
@@ -126,7 +125,9 @@ simdata <- function(n_patients=100,
 # Demographics dataframe ----
 set.seed(Script_seed)
 Demog<-simdata(Saveto = "Exported_Patient_Data.xlsx")
-survfit(Surv(Day_of_progression)~Sex,data=Demog) %>% plot()
+
+#We are commenting this out the line below for Elena's data
+#survfit(Surv(Day_of_progression)~Sex,data=Demog) %>% plot()
 head(Demog)
 
 
@@ -193,15 +194,19 @@ head(Demog)
 
 Sampledata<-list()
 for(xx in 
-readxl::excel_sheets(Synthpopinput)[1,2]){
+readxl::excel_sheets(Synthpopinput)){
   print(xx)
   Sampledata[[xx]]<-import(Synthpopinput,which = xx) %>% subset(!is.na(names)) %>%
     select(!any_of('Comments')) %>%
-    syn.strata('name',minstratumsize = 10) %>% {.$syn}
+    syn.strata('name',minstratumsize = 10) %>% {.$syn} %>% 
+    arrange_at(.,intersect(c('name','StudyDay','date'),names(.)))
 
   
 }
-synGPS<-syn.strata(iris,'Species',minstratumsize = 10)
+
+export(Sampledata,'Elena syndata.xlsx')
+
+synGPS<-syn.strata(Sampledata$GPS,strata = 'name',minstratumsize = 10)$syn
 summary(synGPS)
 compare(synGPS,iris)
 c()
