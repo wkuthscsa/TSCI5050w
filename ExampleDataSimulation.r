@@ -33,7 +33,7 @@ knitr::opts_chunk$set(
   class.output = "scroll-20",
   attr.output = 'style="max-height: 150px; overflow-y: auto;"'
 )
-Synthpopinput<-'SyndataOriginal wjk240430.xlsx'
+Synthpopinput<-'Elena data wjk240507.xlsx'
 
 
 library(ggplot2); # visualisation
@@ -206,8 +206,8 @@ readxl::excel_sheets(Synthpopinput)){
 
 export(Sampledata,'Elena syndata.xlsx')
 
-synGPS<-syn.strata(Sampledata$GPS,strata = 'name',minstratumsize = 10)$syn
-summary(synGPS)
-compare(synGPS,iris)
+RPE<-import(Synthpopinput,which="RPE")
+synRPE<-syn.strata(RPE,"name",minstratumsize = 2)
+compare(synRPE,RPE)
 c()
 
